@@ -1,0 +1,14 @@
+listen_addr: ":3300"
+tls_enabled: false
+tls_cert: ./tls.crt
+tls_key: ./tls.key
+hash: "CHANGE_ME"
+file_roots:
+  - /tmp/rcserver-files
+nginx_sites_dir: /tmp/rcserver-nginx
+www_root: /tmp/rcserver-www
+deploy_dir: /tmp/rcserver-www/sites
+rate_per_second: 20
+rate_burst: 40
+exec_timeout_sec: 120
+max_output_bytes: 2097152
