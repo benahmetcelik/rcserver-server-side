@@ -6,7 +6,7 @@ Detaylı güvenlik notları için [SECURITY.md](SECURITY.md) dosyasına bakın.
 
 ## Gereksinimler
 
-- **Go** 1.25 veya üzeri (kaynak koddan derleme için)
+- **Go** 1.25 veya üzeri (kaynak koddan derleme için; `go.mod` içindeki `go` satırı ile uyumlu olmalı)
 - **Linux** (üretim kurulumu `install.sh` ile test edilmiştir)
 - **OpenSSL** (kurulum betiği self-signed TLS sertifikası üretmek için)
 - **systemd** (kurulum betiği servis olarak kaydeder)
@@ -19,11 +19,27 @@ git clone https://github.com/benahmetcelik/rcserver-server-side.git
 cd rcserver-server-side
 ```
 
-## Kaynak koddan derleme
+### Go yükseltme (sunucuda eski sürüm varsa)
+
+Dağıtım paketindeki `golang-go` çoğu zaman **çok eski** kalır (ör. 1.18). Bu proje **en az Go 1.25** ister. Resmi ikili paketi kullanın ([indirme listesi](https://go.dev/dl/)); **linux/amd64** için örnek:
+
+```bash
+cd /tmp
+wget https://go.dev/dl/go1.25.0.linux-amd64.tar.gz   # sürümü siteden doğrulayın
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.25.0.linux-amd64.tar.gz
+echo 'export PATH=/usr/local/go/bin:$PATH' >> ~/.bashrc && source ~/.bashrc
+go version   # go1.25.x görmelisiniz
+```
+
+**ARM64** sunucuda dosya adı `go1.25.0.linux-arm64.tar.gz` olur. `which go` çıktısı `/usr/local/go/bin/go` olmalı; hâlâ eski sürüm görünüyorsa `PATH` sırasını kontrol edin.
+
+### Kaynak koddan derleme
 
 Proje kökünde:
 
 ```bash
+go mod download   # isteğe bağlı
 go build -o rcserver ./cmd/rcserver
 ```
 
@@ -48,10 +64,10 @@ Kurulum betiği:
 sudo ./install.sh
 ```
 
-Betiğin ikiliyi aradığı varsayılan yol, betiğin bulunduğu dizindeki `./rcserver` dosyasıdır. İkiliyi başka yerde derlediyseniz:
+Betiğin ikiliyi aradığı varsayılan yol, betiğin bulunduğu dizindeki `./rcserver` dosyasıdır. İkiliyi başka yerde derlediyseniz **gerçek dosya yolunu** verin (örnek):
 
 ```bash
-sudo BINARY=/tam/yol/rcserver ./install.sh
+sudo BINARY=/root/rcserver-server-side/rcserver ./install.sh
 ```
 
 ### Ortam değişkenleri (isteğe bağlı)
