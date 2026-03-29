@@ -57,14 +57,21 @@ EOF
 fi
 
 export RC_SERVER_CONFIG="$CFG_FILE"
-"$BIN_DST" generate hash --config "$CFG_FILE" || true
+if ! "$BIN_DST" generate hash --config "$CFG_FILE"; then
+  die "HASH üretilemedi; yukarıdaki hatayı düzeltin"
+fi
+
+# Servis rcserver kullanıcısı ile çalışır; yapılandırma ve TLS dosyaları okunabilir olmalı (aksi halde servis hemen çıkar)
+chown "$USER_NAME:$USER_NAME" "$CFG_FILE" "$TLS_CRT" "$TLS_KEY"
+chmod 600 "$CFG_FILE"
+chmod 640 "$TLS_CRT" "$TLS_KEY"
 
 UNIT="/etc/systemd/system/rcserver.service"
 cat >"$UNIT" <<EOF
 [Unit]
 Description=RC Server agent
-After=network.target docker.service
-Wants=docker.service
+After=network-online.target
+# Docker isteğe bağlı; Wants=docker.service kullanılmaz (Docker yoksa servis başlamayabiliyordu)
 
 [Service]
 Type=simple
@@ -73,8 +80,11 @@ Group=$USER_NAME
 Environment=RC_SERVER_CONFIG=$CFG_FILE
 ExecStart=$BIN_DST serve --config $CFG_FILE
 Restart=on-failure
+RestartSec=3
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 LimitNOFILE=65535
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
@@ -82,6 +92,7 @@ EOF
 
 systemctl daemon-reload
 systemctl enable rcserver.service
+systemctl reset-failed rcserver.service 2>/dev/null || true
 systemctl restart rcserver.service || systemctl start rcserver.service
 
 echo "Kurulum tamam. Yapılandırma: $CFG_FILE"

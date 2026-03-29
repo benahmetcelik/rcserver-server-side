@@ -139,6 +139,12 @@ Korumalı uçlar için istek başlığı:
 
 ## Sorun giderme
 
-- **`hash` boş hatası:** `rcserver generate hash --config <yol>` çalıştırın.
-- **TLS hatası:** `tls_enabled: true` iken `tls_cert` ve `tls_key` yollarının okunabilir olduğundan emin olun.
+- **`systemctl status rcserver` failed / exit-code:** Önce gerçek loga bakın:  
+  `sudo journalctl -u rcserver -n 40 --no-pager`  
+  Yaygın nedenler:  
+  **(a)** **`rcserver` kullanıcısı config/TLS okuyamıyor** — `sudo chown rcserver:rcserver /etc/rcserver/config.yaml /etc/rcserver/tls.crt /etc/rcserver/tls.key` ve `chmod 600` config, `640` TLS.  
+  **(b)** Eski birimde **`Wants=docker.service`** vardı; Docker yoksa güncel `install.sh` bunu kaldırır — yeniden `./install.sh` veya birim dosyasından `Wants=docker` satırını silip `sudo systemctl daemon-reload && sudo systemctl reset-failed rcserver && sudo systemctl start rcserver`.  
+  Çok deneme sonrası: `sudo systemctl reset-failed rcserver`.
+- **`hash` boş hatası:** `sudo rcserver generate hash --config /etc/rcserver/config.yaml` çalıştırın; ardından yukarıdaki `chown` ile dosya sahipliğini kontrol edin.
+- **TLS hatası:** `tls_enabled: true` iken `tls_cert` ve `tls_key` yollarının **servis kullanıcısı** tarafından okunabildiğinden emin olun.
 - **Nginx yenileme başarısız:** Ajan `rcserver` kullanıcısı ile çalışır; `nginx` komutları için ek `sudoers` veya farklı dağıtım modeli gerekebilir. Ayrıntılar [SECURITY.md](SECURITY.md) içinde.
