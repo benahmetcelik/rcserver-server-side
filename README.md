@@ -15,7 +15,7 @@ Detaylı güvenlik notları için [SECURITY.md](SECURITY.md) dosyasına bakın.
 ## Depoyu klonlama
 
 ```bash
-git clone https://github.com/rcservers/rcserver-server-side.git
+git clone https://github.com/benahmetcelik/rcserver-server-side.git
 cd rcserver-server-side
 ```
 
