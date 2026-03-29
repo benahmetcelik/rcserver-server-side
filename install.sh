@@ -12,8 +12,9 @@ die() { echo "install.sh: $*" >&2; exit 1; }
 [[ "${EUID:-0}" -eq 0 ]] || die "root olarak çalıştırın (sudo)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Örnek: BINARY=/root/rcserver-server-side/rcserver (gerçek dosya yolu; /tam/yol gibi yer tutucu kullanmayın)
 BINARY="${BINARY:-$SCRIPT_DIR/rcserver}"
-[[ -f "$BINARY" ]] || die "önce bu dizinde 'go build -o rcserver ./cmd/rcserver' ile ikili oluşturun: $BINARY"
+[[ -f "$BINARY" ]] || die "ikili bulunamadı: $BINARY — önce proje kökünde 'go build -o rcserver ./cmd/rcserver' çalıştırın veya BINARY= ile gerçek rcserver dosya yolunu verin"
 
 install -d -m 0755 "$RC_ROOT" "$CFG_DIR" "$STATE_DIR"
 
